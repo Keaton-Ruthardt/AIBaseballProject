@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Data Files (adjust based on your needs)
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+!shared/data/sample/*.csv          # Exception: keep sample data
+
+# Model Files
+*.h5
+*.pkl
+*.pickle
+*.joblib
+*.pt
+*.pth
+*.ckpt
+shared/models/*
+!shared/models/.gitkeep
+deliverables/*/models/*
+
+# Large Files
+*.zip
+*.tar.gz
+*.rar
+
+# Output Files (selectively commit)
+outputs/figures/*.png
+outputs/figures/*.jpg
+!outputs/figures/key_results.png  # Exception: keep important figures
+outputs/tables/*.csv
+
+# Credentials and Secrets
+.env
+.env.local
+credentials.json
+secrets.yaml
+api_keys.txt
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Temporary Files
+*.log
+*.tmp
+*.temp
+.cache/
+
+# R (if using R)
+.Rhistory
+.RData
+.Rproj.user
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
