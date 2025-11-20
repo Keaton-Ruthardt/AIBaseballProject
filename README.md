@@ -19,7 +19,7 @@ The system processes a raw MLB game clip and outputs:
 Run in Terminal
 python -m venv venv
 source venv/bin/activate        # Mac/Linux
-# venv\Scripts\activate         # Windows
+venv\Scripts\activate           # Windows
 
 2. Install dependencies
 
