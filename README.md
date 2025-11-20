@@ -1,69 +1,68 @@
-# Baseball Runner Advance Prediction Pipeline
+# AI Baseball Runner Advance Prediction
 
-Complete end-to-end pipeline: Video → Tracking → Features → ML Prediction
+This project builds a complete end-to-end system that predicts whether a baserunner will advance on a sacrifice fly play using both computer vision and machine learning.
 
-## Quick Start
+**Pipeline:**
+> Video → YOLO Tracking → Feature Extraction → Ensemble ML Model → SAFE/OUT Prediction
 
-```bash
-# 1. Create virtual environment
-python -m venv venv_deliverable4
-venv_deliverable4\Scripts\activate  # Windows
-# source venv_deliverable4/bin/activate  # Mac/Linux
+The system processes a raw MLB game clip and outputs:
+- an annotated video (bounding boxes)
+- a tracker CSV (player positions)
+- a features CSV (7 final model inputs)
+- a prediction file with SAFE/OUT + probability
 
-# 2. Install dependencies
+---
+
+## Environment Setup
+
+### 1. Create virtual environment
+Run in Terminal
+python -m venv venv
+source venv/bin/activate        # Mac/Linux
+# venv\Scripts\activate         # Windows
+
+2. Install dependencies
+
 pip install -r requirements.txt
 
-# 3. Run pipeline
-python run_complete_pipeline.py --video your_video.mp4 --metadata video_metadata.csv --output results
-```
+▶️ Running the Complete Pipeline
 
-## What You Get
+From the project root:
 
-- **Exact ML predictions** (not heuristics!)
-- **Annotated videos** with player detection boxes
-- **Feature extraction** from video + Statcast
-- **79-90% prediction accuracy** from trained ensemble model
+cd deliverables/keaton/deliverable_4
 
-## Input Format
+python run_complete_pipeline.py \
+  --video ../../../videos/sac_fly_001.mp4 \
+  --metadata data/video_metadata.csv \
+  --output ../../results
 
-**video_metadata.csv** (one file for all videos):
-```csv
-video_filename,video_id,play_outcome,runner_base,exit_velocity,launch_angle,hit_distance,hangtime,...
-sac_fly_001.mp4,sac_fly_001,safe,3B,109.8,16,305,3,...
-sac_fly_002.mp4,sac_fly_002,safe,3B,78.6,39,273,3,...
-```
+Output files (written to results/):
 
-The pipeline automatically extracts the row matching your video filename!
+    *_tracker.csv — detected players per frame
 
-## Output Files
+    *_features.csv — extracted model-ready features
 
-1. `{video}_tracker.csv` - Player positions per frame
-2. `{video}_annotated.mp4` - Video with bounding boxes
-3. `{video}_features.csv` - All 8 extracted features
-4. `{video}_prediction.txt` - Final prediction + probability
+    *_prediction.txt — SAFE/OUT + probability
 
-## Example Result
+    *_annotated.mp4 — bounding box video
 
-```
-Video: sac_fly_001
-Prediction: RUNNER ADVANCES (SAFE)
-Probability: 0.791881
-Confidence: 79.2%
-```
+📁 Repository Structure
 
-See **SETUP_INSTRUCTIONS.txt** for detailed setup and troubleshooting.
+AIBaseballProject/
+│
+├── videos/
+├── results/
+├── requirements.txt
+├── README.md
+│
+└── deliverables/
+    └── keaton/
+        └── deliverable_4/
+            ├── run_complete_pipeline.py
+            ├── src/
+            └── data/
 
-## Model Details
+📘 Full Project Documentation
 
-- **Ensemble:** Random Forest + Gradient Boosting + Logistic Regression
-- **Training data:** 15,533 sacrifice fly plays
-- **Features:** 7 total (6 numerical, 1 categorical fielder position)
-- **Performance:** AUC 0.90, Log Loss 0.40
-
-## Package Contents
-
-- ✅ Main pipeline script
-- ✅ All source code (tracker, converter, model)
-- ✅ Training data (train_data.csv, test_data.csv)
-- ✅ Requirements.txt
-- ✅ Complete setup instructions
+A full Quarto book documenting all 4 weeks of development is available in:
+/book/
