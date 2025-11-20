@@ -1,94 +1,69 @@
-# AIBaseballProject
+# Baseball Runner Advance Prediction Pipeline
 
-# Main Files (Baseball Videos, Model code and data)
-https://drive.google.com/drive/folders/1wGNNieS7r08MyP6bdjZsgZbvYSlLRc5y?usp=sharing
+Complete end-to-end pipeline: Video → Tracking → Features → ML Prediction
 
-## Overview
-Baseball sacrifice play prediction using machine learning and computer vision. A 5-week team project analyzing and predicting sacrifice play situations in baseball games.
+## Quick Start
 
-## Team Members
-- Keaton (Team Lead)
-- Diego
-- Joshua (Team Lead)
-- DuoDuo
-- Samuel
+```bash
+# 1. Create virtual environment
+python -m venv venv_deliverable4
+venv_deliverable4\Scripts\activate  # Windows
+# source venv_deliverable4/bin/activate  # Mac/Linux
 
-## Project Goal
-Develop an ML and computer vision system to predict sacrifice play situations in baseball games.
+# 2. Install dependencies
+pip install -r requirements.txt
 
-## Repository Structure
-
-```
-AIBaseballProject/
-└── deliverables/          # Each team member's work area
-    ├── keaton/
-    ├── diego/
-    ├── joshua/
-    ├── duoduo/
-    └── samuel/
+# 3. Run pipeline
+python run_complete_pipeline.py --video your_video.mp4 --metadata video_metadata.csv --output results
 ```
 
-## Getting Started
+## What You Get
 
-### First Time Setup
+- **Exact ML predictions** (not heuristics!)
+- **Annotated videos** with player detection boxes
+- **Feature extraction** from video + Statcast
+- **79-90% prediction accuracy** from trained ensemble model
 
-1. **Clone the repository:**
-   ```bash
-   git clone git@github.com:[organization]/AIBaseballProject.git
-   cd AIBaseballProject
-   ```
+## Input Format
 
-2. **Install Python dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+**video_metadata.csv** (one file for all videos):
+```csv
+video_filename,video_id,play_outcome,runner_base,exit_velocity,launch_angle,hit_distance,hangtime,...
+sac_fly_001.mp4,sac_fly_001,safe,3B,109.8,16,305,3,...
+sac_fly_002.mp4,sac_fly_002,safe,3B,78.6,39,273,3,...
+```
 
-3. **Read the GitHub guide** (if new to Git):
-   - See [GITHUB_SETUP_GUIDE.md](GITHUB_SETUP_GUIDE.md)
+The pipeline automatically extracts the row matching your video filename!
 
-### Working on Your Tasks
+## Output Files
 
-1. **Create your branch:**
-   ```bash
-   git checkout -b [your-name]/[what-youre-working-on]
-   ```
+1. `{video}_tracker.csv` - Player positions per frame
+2. `{video}_annotated.mp4` - Video with bounding boxes
+3. `{video}_features.csv` - All 8 extracted features
+4. `{video}_prediction.txt` - Final prediction + probability
 
-2. **Do your work** in your `deliverables/[your-name]/` folder
+## Example Result
 
-3. **Commit and push:**
-   ```bash
-   git add .
-   git commit -m "Brief description of what you did"
-   git push origin [your-name]/[branch-name]
-   ```
+```
+Video: sac_fly_001
+Prediction: RUNNER ADVANCES (SAFE)
+Probability: 0.791881
+Confidence: 79.2%
+```
 
-4. **Create a Pull Request** on GitHub when ready for team review
+See **SETUP_INSTRUCTIONS.txt** for detailed setup and troubleshooting.
 
-## Folder Guide
+## Model Details
 
-- **`deliverables/[your-name]/`** - Your personal workspace
-  - Put your notebooks, code, outputs, and data here
-  - Track your progress in your personal README
-  - Each member works independently in their own folder
+- **Ensemble:** Random Forest + Gradient Boosting + Logistic Regression
+- **Training data:** 15,533 sacrifice fly plays
+- **Features:** 7 total (6 numerical, 1 categorical fielder position)
+- **Performance:** AUC 0.90, Log Loss 0.40
 
-## Need Help with Git/GitHub?
+## Package Contents
 
-Check out [GITHUB_SETUP_GUIDE.md](GITHUB_SETUP_GUIDE.md) for:
-- Git installation and setup
-- Basic commands
-- How to create branches and pull requests
-- Troubleshooting
-
-## Quick Tips
-
-- **Don't commit large files!** Data files and models are in `.gitignore`
-- **Always work on your own branch**, not `main`
-- **Commit often** with clear messages
-- **Ask questions** if stuck - contact Keaton or Joshua
-
-## Timeline
-- **Week 1**: Setup and data exploration
-- **Week 2**: Feature engineering and initial models
-- **Week 3**: Model development and refinement
-- **Week 4**: Testing and integration
-- **Week 5**: Final deliverable and presentation
+- ✅ Main pipeline script
+- ✅ All source code (tracker, converter, model)
+- ✅ Training data (train_data.csv, test_data.csv)
+- ✅ Requirements.txt
+- ✅ Complete setup instructions
