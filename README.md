@@ -40,6 +40,7 @@ From the project root:
 cd main
 python run_complete_pipeline.py --video videos/sac_fly_001.mp4 --metadata video_metadata.csv --output results
 ```
+If you want to test a different video, just change the number in "sac_fly_001.mp4".
 
 ### Output Files
 
