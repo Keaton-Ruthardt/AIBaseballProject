@@ -26,7 +26,7 @@ source venv/bin/activate        # Mac/Linux
 venv\Scripts\activate           # Windows
 ```
 
-### 2. Install Dependencies
+### 2. Go to AIBaseballproject - Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
@@ -37,11 +37,8 @@ pip install -r requirements.txt
 
 From the project root:
 ```bash
-cd deliverables/keaton/deliverable_4
-python run_complete_pipeline.py \
-  --video ../../../videos/sac_fly_001.mp4 \
-  --metadata data/video_metadata.csv \
-  --output ../../results
+cd main
+python run_complete_pipeline.py --video videos/sac_fly_001.mp4 --metadata video_metadata.csv --output results
 ```
 
 ### Output Files
@@ -58,17 +55,18 @@ Written to `results/`:
 ```
 AIBaseballProject/
 │
-├── videos/
-├── results/
-├── requirements.txt
+├── book
+├── deliverables
+├── main/
+    └── results/
+    └── videos/
+    ├── run_complete_pipeline.py
+    ├── All .csv
+    └── All .py
+├── GITHUB_SETUP_GUIDE
 ├── README.md
-│
-└── deliverables/
-    └── keaton/
-        └── deliverable_4/
-            ├── run_complete_pipeline.py
-            ├── src/
-            └── data/
+└── Requirements.txt
+
 ```
 
 ---
