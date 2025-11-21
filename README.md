@@ -58,8 +58,8 @@ AIBaseballProject/
 ├── book
 ├── deliverables
 ├── main/
-    └── results/
-    └── videos/
+    ├── results/
+    ├── videos/
     ├── run_complete_pipeline.py
     ├── All .csv
     └── All .py
