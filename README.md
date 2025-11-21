@@ -60,10 +60,13 @@ AIBaseballProject/
 ├── deliverables
 ├── main/
     ├── results/
+        └── All the test results
     ├── videos/
+        └──  All test videos
     ├── run_complete_pipeline.py
-    ├── All .csv
-    └── All .py
+    ├── * .csv
+    └── * .py
+├── .gitignore
 ├── GITHUB_SETUP_GUIDE
 ├── README.md
 └── Requirements.txt
