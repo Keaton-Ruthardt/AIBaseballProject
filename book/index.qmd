@@ -1,0 +1,23 @@
+---
+title: "AI Baseball Runner Advance Prediction"
+format: html
+---
+
+# Project Overview
+
+This book documents a 4-week computer vision + machine learning project that predicts
+whether a baserunner will advance on a sacrifice fly.
+
+**End-to-end pipeline:**
+
+> Video → Player tracking (YOLOv8) → Feature extraction → Ensemble model → SAFE/OUT prediction
+
+**Team:**
+
+- Keaton – Pipeline architect (run_complete_pipeline, deployment package)
+- Joshua – Validation scripts, performance timing, final documentation
+- Duoduo – System evaluation and metrics on real videos
+- Samuel – Model improvements and pipeline integration
+- Diego – Overlay design and visual demo
+
+Each chapter summarizes what was built in that week and how it connects to the final system.

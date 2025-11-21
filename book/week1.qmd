@@ -1,0 +1,50 @@
+---
+title: "Week 1 – Environment & OpenCV Setup"
+---
+
+# Goals
+
+- Set up Python/virtualenv and dependencies
+- Test OpenCV on a sample video
+- Start exploring video processing for baseball plays
+
+# Environment Setup
+
+- Created a virtual environment (`cv-env` / `venv`)
+- Installed:
+  - `opencv-python-headless`
+  - `numpy`
+  - other core libraries from `requirements.txt`
+
+# OpenCV Test Script
+
+We wrote a small script (`opencv_test.py`) that:
+
+1. Opens a video file (e.g., `sac_fly_001.mp4`)
+2. Prints resolution, FPS, and frame count
+3. Saves the first frame as an image (`first_frame.jpg`)
+
+```python
+import cv2
+
+cap = cv2.VideoCapture("sac_fly_001.mp4")
+if not cap.isOpened():
+    raise RuntimeError("Could not open video")
+
+width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+fps    = cap.get(cv2.CAP_PROP_FPS)
+frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+print("Resolution:", width, "x", height)
+print("FPS:", fps)
+print("Total frames:", frames)
+
+ret, frame = cap.read()
+if ret:
+    cv2.imwrite("first_frame.jpg", frame)
+
+cap.release()
+```
+
+This confirmed that the environment and OpenCV were correctly installed and able to read our baseball clips.
