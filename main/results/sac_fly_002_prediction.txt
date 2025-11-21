@@ -1,0 +1,13 @@
+Video: sac_fly_002
+Prediction: ADVANCES
+Probability: 0.505
+
+Features:
+  runner_base: 3
+  exit_speed: 78.6
+  launch_angle: 39
+  hit_distance: 273
+  hangtime: 3
+  fielder_pos: CF
+  exit_speed_squared: 6177.959999999999
+  player_distance_ft: nan
