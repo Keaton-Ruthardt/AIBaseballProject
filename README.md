@@ -56,20 +56,45 @@ Written to `results/`:
 ```
 AIBaseballProject/
 │
-├── book
-├── deliverables
-├── main/
-    ├── results/
-        └── All the test results
-    ├── videos/
-        └──  All test videos
-    ├── run_complete_pipeline.py
-    ├── * .csv
-    └── * .py
-├── .gitignore
-├── GITHUB_SETUP_GUIDE
-├── README.md
-└── Requirements.txt
+├── main/                       # Main source code and data
+│   ├── run_complete_pipeline.py      # Main pipeline script
+│   ├── simple_tracker.py             # YOLO-based player tracking
+│   ├── pixel_to_feet_converter.py    # Coordinate conversion
+│   ├── feature_preparation.py        # Feature extraction
+│   ├── original_ensemble_model_D3.py # ML ensemble model
+│   ├── validator.py                  # Input validation
+│   │
+│   ├── videos/                       # Sample video files
+│   │   ├── sac_fly_001.mp4
+│   │   └── ...
+│   │
+│   ├── train_data.csv                # Training dataset
+│   ├── test_data.csv                 # Test dataset
+│   ├── glossary.csv                  # Feature glossary
+│   ├── outfield_position.csv         # Position tracking data
+│   ├── video_metadata.csv            # Video metadata
+│   └── yolov8n.pt                    # YOLO model weights
+│
+├── book/                       # Quarto documentation
+│   ├── _quarto.yml
+│   ├── index.qmd
+│   ├── week1.qmd
+│   ├── week2.qmd
+│   ├── week3.qmd
+│   └── week4.qmd
+│
+├── deliverables/               # Weekly team deliverables
+│   ├── keaton/
+│   ├── joshua/
+│   ├── diego/
+│   ├── duoduo/
+│   └── samuel/
+│
+├── results/                    # Output directory (generated)
+│
+├── requirements.txt            # Python dependencies
+├── README.md                   # This file
+└── .gitignore
 
 ```
 
