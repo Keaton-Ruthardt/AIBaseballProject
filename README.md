@@ -17,7 +17,14 @@ The system processes a raw MLB game clip and outputs:
 
 ## Environment Setup
 
-### 1. Create Virtual Environment
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Keaton-Ruthardt/AIBaseballProject.git
+cd AIBaseballProject
+```
+
+### 2. Create Virtual Environment
 
 Run in Terminal:
 ```bash
@@ -26,7 +33,7 @@ source venv/bin/activate        # Mac/Linux
 venv\Scripts\activate           # Windows
 ```
 
-### 2. Go to AIBaseballproject - Install Dependencies
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
@@ -42,6 +49,20 @@ python run_complete_pipeline.py --video videos/sac_fly_001.mp4 --metadata video_
 ```
 If you want to test a different video, just change the number in "sac_fly_001.mp4".
 
+Optional Arguments
+
+--device mps - Use Apple Silicon GPU acceleration (Mac only)
+--device cpu - Force CPU usage
+
+Example with GPU acceleration:
+```bash
+python main/run_complete_pipeline.py \
+  --video main/videos/sac_fly_001.mp4 \
+  --metadata main/video_metadata.csv \
+  --output results \
+  --device mps
+```
+
 ### Output Files
 
 Written to `results/`:
@@ -56,20 +77,45 @@ Written to `results/`:
 ```
 AIBaseballProject/
 │
-├── book
-├── deliverables
-├── main/
-    ├── results/
-        └── All the test results
-    ├── videos/
-        └──  All test videos
-    ├── run_complete_pipeline.py
-    ├── * .csv
-    └── * .py
-├── .gitignore
-├── GITHUB_SETUP_GUIDE
-├── README.md
-└── Requirements.txt
+├── main/                       # Main source code and data
+│   ├── run_complete_pipeline.py      # Main pipeline script
+│   ├── simple_tracker.py             # YOLO-based player tracking
+│   ├── pixel_to_feet_converter.py    # Coordinate conversion
+│   ├── feature_preparation.py        # Feature extraction
+│   ├── original_ensemble_model_D3.py # ML ensemble model
+│   ├── validator.py                  # Input validation
+│   │
+│   ├── videos/                       # Sample video files
+│   │   ├── sac_fly_001.mp4
+│   │   └── ...
+│   │
+│   ├── train_data.csv                # Training dataset
+│   ├── test_data.csv                 # Test dataset
+│   ├── glossary.csv                  # Feature glossary
+│   ├── outfield_position.csv         # Position tracking data
+│   ├── video_metadata.csv            # Video metadata
+│   └── yolov8n.pt                    # YOLO model weights
+│
+├── book/                       # Quarto documentation
+│   ├── _quarto.yml
+│   ├── index.qmd
+│   ├── week1.qmd
+│   ├── week2.qmd
+│   ├── week3.qmd
+│   └── week4.qmd
+│
+├── deliverables/               # Weekly team deliverables
+│   ├── keaton/
+│   ├── joshua/
+│   ├── diego/
+│   ├── duoduo/
+│   └── samuel/
+│
+├── results/                    # Output directory (generated)
+│
+├── requirements.txt            # Python dependencies
+├── README.md                   # This file
+└── .gitignore
 
 ```
 
@@ -77,7 +123,11 @@ AIBaseballProject/
 
 ## 📘 Full Project Documentation
 
-A full Quarto book documenting all 4 weeks of development is available in:
+Full project documentation with weekly progress is available in the /book directory as a Quarto book.
+To build and view the documentation:
+
+```bash
+cd book
+quarto render
 ```
-/book/
-```
+
