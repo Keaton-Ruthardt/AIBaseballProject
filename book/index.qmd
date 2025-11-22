@@ -1,23 +1,183 @@
+# AI Baseball Runner Advance Prediction
+
+## Project Overview
+
+This book documents the development of an end-to-end AI system that predicts whether a baserunner will successfully advance on sacrifice fly plays in baseball. Combining computer vision and machine learning, our system processes MLB video footage to deliver real-time SAFE/OUT predictions with confidence scores.
+
+## The Challenge
+
+When a sacrifice fly occurs in baseball, runners must decide whether to attempt advancing to the next base. This split-second decision depends on multiple factors:
+
+- Ball trajectory and hang time
+- Outfielder positioning and distance
+- Runner starting base
+
+Our system automates this prediction using:
+- **YOLOv8** for player detection
+- **Custom tracking algorithms** for position monitoring
+- **Spatial feature engineering** for geometry calculations
+- **Ensemble machine learning** for outcome prediction
+
+## System Pipeline
+
+```
+MLB Video Input
+      ↓
+YOLOv8 Player Detection
+      ↓
+Position Tracking
+      ↓
+Feature Extraction
+      ↓
+ML Ensemble Model
+      ↓
+SAFE/OUT Prediction
+      ↓
+Annotated Video Output
+```
+
+## Key Features
+
+### Computer Vision
+- Real-time player detection using YOLOv8
+- Multi-player tracking with persistent IDs
+- Automatic catch detection
+- Spatial coordinate mapping (pixels → feet)
+
+### Machine Learning
+- Ensemble model (Random Forest + Gradient Boosting + Logistic Regression)
+- 7 optimized features
+- 89% AUC performance
+- Low log loss (0.40)
+
+### Pipeline
+- Single-command execution
+- ~53 seconds per video
+- Comprehensive outputs (CSV, video, predictions)
+- Production-ready deployment
+
+## Project Timeline
+
+| Week | Focus | Key Deliverables |
+|------|-------|------------------|
+| **Week 1** | Setup & Planning | Environment, data sources, team roles |
+| **Week 2** | Vision Pipeline | Frame extraction, YOLO detection, feature engineering |
+| **Week 3** | Data Collection | ~50 videos, validation scripts, model integration |
+| **Week 4** | Complete Pipeline | End-to-end automation, performance testing |
+| **Week 5** | Final Testing | ~120 video dataset, documentation, demo |
+
+## Team
+
+- **Team Leaders**: Joshua Cano, Keaton Ruthardt
+- **Team Members**: Diego Mendoza, Samuel Bulnes, Duoduo Cai
+
+## Repository Structure
+
+```
+AIBaseballProject/
+├── main/                      # Core pipeline code
+│   ├── run_complete_pipeline.py
+│   ├── simple_tracker.py
+│   ├── pixel_to_feet_converter.py
+│   ├── feature_preparation.py
+│   └── original_ensemble_model_D3.py
+│
+├── book/                      # This documentation
+│   ├── index.qmd
+│   ├── week1.qmd
+│   ├── week2.qmd
+│   ├── week3.qmd
+│   ├── week4.qmd
+│   └── week5.qmd
+│
+├── deliverables/              # Weekly progress
+├── results/                   # Output predictions
+└── README.md                  # Quick start guide
+```
+
+## Quick Start
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/Keaton-Ruthardt/AIBaseballProject.git
+cd AIBaseballProject
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Run Pipeline
+
+```bash
+cd main
+python3 run_complete_pipeline.py --video videos/sac_fly_001.mp4 --metadata video_metadata.csv --output results
+```
+
+### Output
+
+```
+results/
+├── sac_fly_001_tracker.csv      # Player positions per frame
+├── sac_fly_001_features.csv     # Model-ready features
+├── sac_fly_001_prediction.txt   # SAFE/OUT + probability
+└── sac_fly_001_annotated.mp4    # Video with overlays
+```
+
+## Performance Metrics
+
+| Metric | Value |
+|--------|-------|
+| **AUC** | 0.89 |
+| **Log Loss** | 0.40 |
+| **Processing Time** | ~53s/video |
+| **Success Rate** | 60-70% |
+| **Feature Count** | 7 |
+
+## Key Technologies
+
+- **Python 3.10+**: Core language
+- **YOLOv8**: Object detection
+- **OpenCV**: Video processing
+- **scikit-learn**: Machine learning
+- **pandas**: Data manipulation
+- **NumPy**: Numerical operations
+
+## Documentation Structure
+
+This book is organized chronologically, documenting our 5-week development journey:
+
+1. **[Week 1: Setup](week1.qmd)** - Project initialization and planning
+2. **[Week 2: Vision Pipeline](week2.qmd)** - Core computer vision development
+3. **[Week 3: Data Collection](week3.qmd)** - Dataset creation and validation
+4. **[Week 4: Complete Pipeline](week4.qmd)** - Integration and optimization
+5. **[Week 5: Final Testing](week5.qmd)** - Comprehensive evaluation and delivery
+
+Each chapter details:
+- Team contributions
+- Technical implementations
+- Challenges and solutions
+- Code examples
+- Performance metrics
+- Key learnings
+
+## Acknowledgments
+
+Special thanks to:
+- **Dr. V** for project guidance
+- **MLB** for public video and Statcast data
+- **Ultralytics** for YOLOv8 framework
+- **Open source community** for tools and libraries
+
 ---
-title: "AI Baseball Runner Advance Prediction"
-format: html
----
 
-# Project Overview
+*This project demonstrates the power of AI in sports analytics, combining cutting-edge computer vision with machine learning to solve real-world baseball prediction challenges.*
 
-This book documents a 4-week computer vision + machine learning project that predicts
-whether a baserunner will advance on a sacrifice fly.
+## Navigate This Book
 
-**End-to-end pipeline:**
-
-> Video → Player tracking (YOLOv8) → Feature extraction → Ensemble model → SAFE/OUT prediction
-
-**Team:**
-
-- Keaton – Pipeline architect (run_complete_pipeline, deployment package)
-- Joshua – Validation scripts, performance timing, final documentation
-- Duoduo – System evaluation and metrics on real videos
-- Samuel – Model improvements and pipeline integration
-- Diego – Overlay design and visual demo
-
-Each chapter summarizes what was built in that week and how it connects to the final system.
+Use the sidebar to explore each week's progress, or start with [Week 1](week1.qmd) to follow our complete development journey.
