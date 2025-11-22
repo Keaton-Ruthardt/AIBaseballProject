@@ -102,7 +102,11 @@ AIBaseballProject/
 
 ## 📘 Full Project Documentation
 
-A full Quarto book documenting all 4 weeks of development is available in:
+Full project documentation with weekly progress is available in the /book directory as a Quarto book.
+To build and view the documentation:
+
+```bash
+cd book
+quarto render
 ```
-/book/
-```
+
