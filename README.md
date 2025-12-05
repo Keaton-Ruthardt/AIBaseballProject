@@ -15,53 +15,8 @@ The system processes a raw MLB game clip and outputs:
 
 ---
 
-## Environment Setup
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Keaton-Ruthardt/AIBaseballProject.git
-cd AIBaseballProject
-```
-
-### 2. Create Virtual Environment
-
-Run in Terminal:
-```bash
-python3 -m venv venv
-source venv/bin/activate        # Mac/Linux
-venv\Scripts\activate           # Windows
-```
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## ▶️ Running the Complete Pipeline
-
-From the project root:
-```bash
-cd main
-python run_complete_pipeline.py --video videos/sac_fly_001.mp4 --metadata video_metadata.csv --output results
-```
-If you want to test a different video, just change the number in "sac_fly_001.mp4".
-
-Optional Arguments
-
---device mps - Use Apple Silicon GPU acceleration (Mac only)
---device cpu - Force CPU usage
-
-Example with GPU acceleration:
-```bash
-python main/run_complete_pipeline.py \
-  --video main/videos/sac_fly_001.mp4 \
-  --metadata main/video_metadata.csv \
-  --output results \
-  --device mps
-```
+### Environnment Setup
+Check the Environmnet Setup Folder 
 
 ### Output Files
 
@@ -73,7 +28,7 @@ Written to `results/`:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 ```
 AIBaseballProject/
 │
@@ -121,7 +76,7 @@ AIBaseballProject/
 
 ---
 
-## 📘 Full Project Documentation
+## Full Project Documentation
 
 Full project documentation with weekly progress is available in the /book directory as a Quarto book.
 To build and view the documentation:
