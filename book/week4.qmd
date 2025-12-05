@@ -202,12 +202,14 @@ python run_complete_pipeline.py \
 **Analysis**:
 
 **Why MPS didn't accelerate**:
+
 1. YOLOv8n is very small → CPU keeps up easily
 2. MPS backend still developing, has overhead
 3. Short frame window (150 frames) limits GPU benefit
 4. Most time spent in scikit-learn (CPU-only)
 
 **Future Optimization**:
+
 - CUDA deployment will show major speedups
 - Larger YOLO models benefit more from GPU
 - Batch processing multiple videos
@@ -281,6 +283,7 @@ def predict(self, features):
 | **Reliability** | **Medium** | **High** | **✅** |
 
 **Justification**: Small performance decrease is acceptable for:
+
 - ✅ Crash-free operation
 - ✅ Consistent predictions
 - ✅ Real-world compatibility
@@ -291,6 +294,8 @@ def predict(self, features):
 **Objective**: Comprehensive end-to-end testing on real videos
 
 **Evaluation Process**:
+
+```python
 def main():
     pred = load_predictions()
     labels = load_labels()
@@ -331,15 +336,15 @@ def main():
         f"  - Incorrect: {incorrect}/{len(y_true)} ({incorrect / len(y_true) * 100:.1f}%)")
     print(f"  - False positives: {fp}")
     print(f"  - False negatives: {fn}")
-
+```
+AI Assistance note - ChatGPT was used to aide in the creation of this script, specifically for generating and formatting print statements in a well formatted way.
 
 **Test Dataset**: 35 sacrifice fly videos
-
-**Results**:
 
 **Valid Outputs**: 21 out of 35 videos (60%)
 
 **Why 14 videos failed**:
+
 - Empty tracker CSVs (no detections)
 - Missing catch frames
 - Invalid feature calculations
@@ -355,6 +360,7 @@ def main():
   - Model very confident on clean SAFE plays
 
 **Key Finding**: 
+
 OUT plays struggled due to tracking failures:
 - Sharp camera angles
 - Near infield frames
@@ -362,6 +368,7 @@ OUT plays struggled due to tracking failures:
 - Harder for YOLO to detect reliably
 
 **Recommendations**:
+
 1. Improve tracking for OUT scenarios
 2. Collect more OUT play videos
 3. Handle edge cases better
@@ -402,12 +409,12 @@ return 0;
 
 ```
 ## Overlay Code (Python in Quarto) 
-```{r} 
+```r 
 library(reticulate) 
 # If you want to force your ai-env: 
 use_virtualenv("C:/ai-env", required = TRUE) 
 ``` 
-```{python} 
+```python
 import cv2 
 from pathlib import Path 
 # --- 1. Paths and prediction text ----------------------------------------- 
@@ -499,12 +506,14 @@ out.release()
 
 
 **Overlay Components**:
+
 1. Prediction label ("SAFE" / "OUT")
 2. Probability percentage
 3. Color coding (green = SAFE, red = OUT)
 4. Professional font and positioning
 
 **Future Enhancements**:
+
 - Player bounding boxes with IDs
 - Distance measurements shown
 - Real-time tracking visualization
@@ -513,24 +522,28 @@ out.release()
 ## Technical Achievements
 
 ### 1. Complete Automation
+
 ✅ Single command runs entire pipeline
 ✅ Automatic metadata loading
 ✅ Intelligent frame windowing
 ✅ Error handling and logging
 
 ### 2. Performance Optimization
+
 ✅ Benchmarking infrastructure
 ✅ GPU support (MPS/CUDA ready)
 ✅ Timing instrumentation
 ✅ Scalability testing
 
 ### 3. Model Robustness
+
 ✅ Handles missing data
 ✅ Crash-free operation
 ✅ Consistent predictions
 ✅ Production-ready
 
 ### 4. System Validation
+
 ✅ 35-video test suite
 ✅ Quantitative metrics
 ✅ Failure analysis
@@ -539,17 +552,20 @@ out.release()
 ## Pipeline Performance
 
 **Processing Time per Video**:
+
 - Tracking: ~20s
 - Feature extraction: <1s
 - Model prediction: ~33s
 - **Total: ~53 seconds**
 
 **Success Rate**:
+
 - 60% of videos produce valid outputs
 - Main failures: tracking detection issues
 - Perfect performance on clean SAFE plays
 
 **Model Confidence**:
+
 - SAFE plays: 85-95% probability
 - Very consistent predictions
 - Low log loss (0.181) on valid outputs
@@ -557,18 +573,22 @@ out.release()
 ## Challenges & Solutions
 
 ### Challenge 1: OUT Play Tracking
+
 **Problem**: Many OUT plays failed tracking
 **Solution**: Need better angle handling, more training data
 
 ### Challenge 2: GPU Acceleration
+
 **Problem**: MPS didn't speed up pipeline
 **Solution**: Identified bottlenecks, ready for CUDA
 
 ### Challenge 3: Dataset Bias
+
 **Problem**: Test set only had SAFE plays pass validation
 **Solution**: Prioritize OUT play collection for Week 5
 
 ### Challenge 4: Pipeline Crashes
+
 **Problem**: Missing data caused failures
 **Solution**: Added robust error handling and fallbacks
 
