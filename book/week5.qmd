@@ -304,26 +304,6 @@ Actual SAFE   [TP]    [FN]
 - Validate robustness
 - Inform future improvements
 
-## Final System Architecture
-
-### Complete Pipeline Flow
-
-```mermaid
-graph TB
-    A[MLB Video Input] --> B[Video Metadata CSV]
-    A --> C[YOLOv8 Player Detection]
-    C --> D[SimpleOutfielderTracker]
-    D --> E[Tracker CSV]
-    E --> F[BaseballFieldConverter]
-    B --> F
-    F --> G[Features CSV]
-    G --> H[RunnerAdvancePredictor]
-    H --> I[Prediction Output]
-    E --> J[Video Annotator]
-    I --> J
-    J --> K[Final Demo Video]
-```
-
 ### Technology Stack
 
 **Computer Vision**:
@@ -390,27 +370,18 @@ graph TB
 ### Dataset Statistics
 
 **Final Test Dataset**:
-- Total videos: ~120
-- SAFE plays: ~80 (67%)
-- OUT plays: ~40 (33%)
+- Total videos: ~
+- SAFE plays: ~60 (60%)
+- OUT plays: ~40 (40%)
 - Manual annotations: Complete
 - Statcast metadata: Complete
 
 **Video Sources**:
 - MLB Film Room
-- 2023-2024 seasons
+- 2023-2025 seasons
 - Multiple stadiums
 - Diverse camera angles
 
-### Performance Summary
-
-**Model Performance** (Expected):
-- Accuracy: 85-90%
-- Precision: 80-85%
-- Recall: 90-95%
-- F1 Score: 85-90%
-- Log Loss: 0.35-0.45
-- AUC: 0.85-0.92
 
 **Pipeline Performance**:
 - Processing time: ~53 seconds/video
