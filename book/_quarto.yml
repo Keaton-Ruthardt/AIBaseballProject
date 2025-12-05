@@ -1,0 +1,48 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "AI Baseball Runner Advance Prediction"
+  subtitle: "A Computer Vision and Machine Learning Approach"
+  author: 
+    - "Joshua Cano"
+    - "Keaton Ruthardt"
+    - "Diego Mendoza"
+    - "Samuel Bulnes"
+    - "Duoduo Cai"
+  date: "2025-12-5"
+  
+  chapters:
+    - index.qmd
+    - week1.qmd
+    - week2.qmd
+    - week3.qmd
+    - week4.qmd
+    - week5.qmd
+  
+  sidebar:
+    style: "docked"
+    background: "light"
+    collapse-level: 1
+  
+  page-navigation: true
+  
+  repo-url: https://github.com/Keaton-Ruthardt/AIBaseballProject
+  repo-actions: [edit, issue]
+
+format:
+  html:
+    theme: 
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    number-depth: 2
+    code-fold: false
+    code-tools: true
+    code-copy: true
+    link-external-newwindow: true
+
+editor: visual

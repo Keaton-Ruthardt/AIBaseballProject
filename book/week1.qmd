@@ -40,24 +40,16 @@ Week 1 established the complete technical foundation for our AI baseball predict
 - Created shared repository for team collaboration
 
 - Organized folder structure:
-  ```
-  AIBaseballProject/
-  ├── videos/          # Video samples
-  ├── data/            # Training data
-  ├── src/             # Source code
-  ├── results/         # Output predictions
-  └── README.md        # Documentation
-  ```
 - Ensured consistent naming conventions
 - Set up version control workflow
 - Added `.gitignore` for large files
 
 **Impact**:
 
-- ✅ Team has centralized codebase
-- ✅ Video samples ready for testing
-- ✅ Consistent file organization
-- ✅ Collaboration infrastructure established
+-  Team has centralized codebase
+-  Video samples ready for testing
+-  Consistent file organization
+-  Collaboration infrastructure established
 
 ### Joshua Cano: OpenCV Setup & Environment Testing
 
@@ -224,10 +216,10 @@ MLB's partnership with **Google Cloud** produces:
 
 **Limitations of Current Model**:
 
-❌ **Expensive Hardware**: Requires professional GPS tracking systems  
-❌ **Not Real-Time**: Designed for post-game analysis  
-❌ **Limited Access**: Only works in professional settings  
-❌ **Hardware Dependent**: Cannot work from video alone
+- **Expensive Hardware**: Requires professional GPS tracking systems  
+- **Not Real-Time**: Designed for post-game analysis  
+- **Limited Access**: Only works in professional settings  
+- **Hardware Dependent**: Cannot work from video alone
 
 **Our Integration Challenge**:
 
@@ -360,34 +352,34 @@ for framework in [YOLO, CNN, TensorFlow]:
 ## Technical Achievements
 
 ### 1. Development Environment
-✅ OpenCV installed and tested  
-✅ Video processing verified  
-✅ Server compatibility confirmed  
-✅ Baseline test script created
+- OpenCV installed and tested  
+- Video processing verified  
+- Server compatibility confirmed  
+- Baseline test script created
 
 ### 2. Data Infrastructure
-✅ GitHub repository established  
-✅ Video samples collected  
-✅ Folder structure organized  
-✅ Version control configured
+- GitHub repository established  
+- Video samples collected  
+- Folder structure organized  
+- Version control configured
 
 ### 3. Data Source Validated
-✅ MLB Film Room confirmed as primary source  
-✅ Metadata schema designed  
-✅ Statcast data availability verified  
-✅ 25M+ datapoints per game identified
+- MLB Film Room confirmed as primary source  
+- Metadata schema designed  
+- Statcast data availability verified  
+- 25M+ datapoints per game identified
 
 ### 4. Model Understanding
-✅ Existing model analyzed  
-✅ Feature importance identified  
-✅ Integration strategy designed  
-✅ Challenges documented
+- Existing model analyzed  
+- Feature importance identified  
+- Integration strategy designed  
+- Challenges documented
 
 ### 5. Technology Selection
-✅ Computer vision frameworks compared  
-✅ YOLO selected for tracking  
-✅ Testing plan established  
-✅ Performance metrics defined
+- Computer vision frameworks compared  
+- YOLO selected for tracking  
+- Testing plan established  
+- Performance metrics defined
 
 ## Key Decisions
 
