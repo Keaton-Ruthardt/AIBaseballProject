@@ -29,32 +29,101 @@ Week 5 focused on comprehensive system validation, final deliverables, and compl
 **Demo Features**:
 
 ```python
-def create_demo_video(video_path):
+def create_side_by_side_demo(original_video, annotated_video, prediction_prob, output_path):
     """
-    Generate final demonstration with all overlays
+    Create side-by-side comparison video with prediction overlay
+
+    Args:
+        original_video: Path to original video
+        annotated_video: Path to annotated video with bounding boxes
+        prediction_prob: Probability of SAFE (0-1)
+        output_path: Where to save the demo video
     """
-    # Run complete pipeline
-    tracker_output = track_players(video_path)
-    prediction = predict_outcome(tracker_output)
-    
-    # Create annotated video
-    annotated_frames = []
-    for frame, detections in zip(video, tracker_output):
-        # Add bounding boxes
-        frame = draw_bounding_boxes(frame, detections)
-        
-        # Add player labels
-        frame = add_player_labels(frame, detections)
-        
-        # Add distance measurements
-        frame = draw_distance_lines(frame, detections)
-        
-        # Add prediction overlay
-        frame = add_prediction_overlay(frame, prediction)
-        
-        annotated_frames.append(frame)
-    
-    return create_video(annotated_frames)
+    print("Creating demo video for class presentation...")
+
+    # Open both videos
+    cap_orig = cv2.VideoCapture(str(original_video))
+    cap_annot = cv2.VideoCapture(str(annotated_video))
+
+    # Get video properties
+    fps = int(cap_orig.get(cv2.CAP_PROP_FPS))
+    width = int(cap_orig.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap_orig.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    total_frames = int(cap_orig.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print(f"  Original video: {width}x{height} @ {fps}fps, {total_frames} frames")
+
+    # Output video will be double width (side-by-side)
+    out_width = width * 2
+    out_height = height
+
+    # Create video writer
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(str(output_path), fourcc, fps, (out_width, out_height))
+
+    # Calculate prediction text
+    pred_text = f"PREDICTION: {'SAFE' if prediction_prob > 0.5 else 'OUT'}"
+    prob_text = f"Probability: {prediction_prob:.1%}"
+
+    frame_count = 0
+
+    while True:
+        ret_orig, frame_orig = cap_orig.read()
+        ret_annot, frame_annot = cap_annot.read()
+
+        if not ret_orig or not ret_annot:
+            break
+
+        # Create side-by-side frame
+        combined = np.hstack([frame_orig, frame_annot])
+
+        # Add labels at the top
+        cv2.putText(combined, "ORIGINAL", (width//2 - 100, 40),
+                   cv2.FONT_HERSHEY_BOLD, 1.2, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(combined, "ORIGINAL", (width//2 - 100, 40),
+                   cv2.FONT_HERSHEY_BOLD, 1.2, (0, 0, 0), 2, cv2.LINE_AA)
+
+        cv2.putText(combined, "PLAYER DETECTION", (width + width//2 - 200, 40),
+                   cv2.FONT_HERSHEY_BOLD, 1.2, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(combined, "PLAYER DETECTION", (width + width//2 - 200, 40),
+                   cv2.FONT_HERSHEY_BOLD, 1.2, (0, 255, 0), 2, cv2.LINE_AA)
+
+        # Add prediction overlay at bottom center
+        # Background rectangle for better visibility
+        pred_box_height = 120
+        pred_box_y = height - pred_box_height - 20
+        cv2.rectangle(combined, (out_width//2 - 300, pred_box_y),
+                     (out_width//2 + 300, pred_box_y + pred_box_height),
+                     (0, 0, 0), -1)  # Black background
+        cv2.rectangle(combined, (out_width//2 - 300, pred_box_y),
+                     (out_width//2 + 300, pred_box_y + pred_box_height),
+                     (255, 255, 255), 3)  # White border
+
+        # Prediction text
+        color = (0, 255, 0) if prediction_prob > 0.5 else (0, 0, 255)  # Green for SAFE, Red for OUT
+        cv2.putText(combined, pred_text, (out_width//2 - 150, pred_box_y + 50),
+                   cv2.FONT_HERSHEY_BOLD, 1.5, color, 3, cv2.LINE_AA)
+
+        # Probability text
+        cv2.putText(combined, prob_text, (out_width//2 - 120, pred_box_y + 95),
+                   cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
+
+        # Write frame
+        out.write(combined)
+        frame_count += 1
+
+        if frame_count % 100 == 0:
+            print(f"  Processed {frame_count}/{total_frames} frames...")
+
+    # Release everything
+    cap_orig.release()
+    cap_annot.release()
+    out.release()
+
+    print(f"[OK] Demo video created: {output_path}")
+    print(f"     Total frames: {frame_count}")
+    print(f"     Resolution: {out_width}x{out_height}")
+
 ```
 
 **Visual Elements**:
