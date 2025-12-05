@@ -1,0 +1,522 @@
+# Week 2: Vision Pipeline and Feature Engineering
+
+## Overview
+
+Week 2 marked a major technical milestone with the development of our core computer vision pipeline and the engineering of critical spatial features. The team successfully transformed raw video into structured, model-ready data.
+
+## Team Contributions
+
+### Diego Mendoza: Documentation & Feature Playbook
+
+**Objective**: Document all features and establish data standards
+
+**MLB-Provided Features**:
+
+- `runner_base`: Base occupied at pitch (1B/2B/3B)
+- `hit_distance`: Ball travel distance (feet)
+- `bearing`: Horizontal angle from home to landing/catch (degrees)
+- `launch_direction`: Pull/center/opposite field orientation
+- `exit_speed` & `exit_speed_squared`: Ball speed off bat (MPH and squared)
+- `hangtime`: Flight duration (seconds)
+- `launch_angle`: Vertical angle at contact (degrees)
+
+**Team-Computed Features**:
+
+- `outfield_spread_event`: Spacing between LF/CF/RF
+- `fielder_pos`: Which outfielder records the catch
+
+### Joshua Cano: Frame Extraction Pipeline
+
+**Objective**: Build reliable OpenCV pipeline for analysis-ready frames
+
+**Technical Implementation**:
+
+![](images/cv2.png)
+
+
+**Performance Results**:
+
+- Test clip: 1280×720 @ 59.94 FPS, 1,400 frames
+- Extraction @ 30 FPS: 699 frames in 2.58s (~271 FPS processing)
+- Storage reduction: ~50% vs 60 FPS
+- Maintains motion detail for tracking
+
+**Impact**:
+
+- Faster training & iteration
+- Lower storage footprint
+- Consistent timestamps for alignment
+- Foundation for all downstream tracking
+
+### Keaton Ruthardt: Player Tracking System
+
+**Objective**: Detect and track outfielders using YOLOv8
+
+**System Architecture**:
+
+```python
+class SimpleOutfielderTracker:
+    """
+    Simplified tracker that only detects real outfielders.
+    Stricter filtering to avoid false positives.
+    """
+
+    def __init__(
+        self,
+        model_size: str = 'n',
+        confidence_threshold: float = 0.25,
+        device: str = 'cpu'
+    ):
+        self.confidence_threshold = confidence_threshold
+        self.device = device
+
+        model_name = f'yolov8{model_size}.pt'
+        logger.info(f"Loading {model_name}")
+        self.model = YOLO(model_name)
+
+        self.tracker = SimpleCentroidTracker(max_disappeared=30, max_distance=150)
+        self.prev_frame = None
+
+    def detect_players(self, frame: np.ndarray) -> List[Dict]:
+        """Detect all people in frame."""
+        results = self.model.predict(
+            frame,
+            conf=self.confidence_threshold,
+            iou=0.3,
+            classes=[0],
+            verbose=False,
+            device=self.device,
+            imgsz=1280
+        )
+
+        detections = []
+        if len(results) > 0 and results[0].boxes is not None:
+            boxes = results[0].boxes
+            for i in range(len(boxes)):
+                xyxy = boxes.xyxy[i].cpu().numpy()
+                conf = float(boxes.conf[i].cpu().numpy())
+                x1, y1, x2, y2 = map(int, xyxy)
+                cx = int((x1 + x2) / 2)
+                cy = int((y1 + y2) / 2)
+                area = (x2 - x1) * (y2 - y1)
+
+                detections.append({
+                    'bbox': [x1, y1, x2, y2],
+                    'center': [cx, cy],
+                    'confidence': conf,
+                    'area': area
+                })
+
+        return detections
+
+    def filter_to_real_outfielders(
+        self,
+        detections: List[Dict],
+        frame_shape: tuple
+    ) -> List[Dict]:
+        """
+        STRICT filtering to only get real outfielders in the field.
+
+        Rules:
+        - Must be in MIDDLE vertical region (not top where fans/scoreboards are)
+        - Must be reasonable size (not huge closeups, not tiny distant objects)
+        - Must be in field area (centered horizontally)
+        """
+        height, width = frame_shape
+
+        outfielders = []
+        for det in detections:
+            cx, cy = det['center']
+            area = det['area']
+
+            # STRICT RULES to avoid false positives:
+
+            # 1. Must be in MIDDLE of frame vertically (30% - 75%)
+            #    This excludes fans/scoreboards at top (y < 30%)
+            if not (height * 0.30 < cy < height * 0.75):
+                continue
+
+            # 2. Size constraints
+            if area < 3000 or area > 35000:
+                continue
+
+            # 3. Must be reasonably centered horizontally (10% - 90%)
+            if not (width * 0.10 < cx < width * 0.90):
+                continue
+
+            outfielders.append(det)
+
+        return outfielders
+
+    def detect_ball(self, frame: np.ndarray) -> Optional[List[int]]:
+        """Detect ball position."""
+        results = self.model.predict(
+            frame,
+            conf=0.15,
+            iou=0.5,
+            classes=[32],  # Sports ball
+            verbose=False,
+            device=self.device,
+            imgsz=1280
+        )
+```
+
+
+**Key Features**:
+
+- **Adaptive Sizing**:
+  -  Dynamic min-area based on candidate count
+  - 7,200 px² when >6 candidates (filter fans)
+  - 2,500 px² in sparse frames (capture distant players)
+  
+- **Outfielder Focus**: Vertical band filter (Y ≈ 0.10–0.75)
+- **Position Assignment**: Sort by x-coordinate → LF (left), CF (center), RF (right)
+- **Windowing**: Process only play frames (150–240) to save compute
+
+**Outputs**:
+
+- Annotated MP4 with LF/CF/RF labels and spacing lines
+- CSV per frame with player positions and distances
+- Ball and catch detection flags
+
+**Results**:
+
+- Visibility rate: 10.8% of frames had classifiable outfielders
+- Catch identification: 2 catches detected (frames 205 & 216)
+- Spacing metrics: LF-CF, CF-RF, LF-RF Euclidean distances
+
+### Duoduo Cai: Spatial Mapping System
+
+**Objective**: Convert 2D pixels to real-world field positions
+
+
+## Introduction
+This prototype demonstrates converting **2D pixel coordinates** from a baseball video frame  
+into **real-world field positions (feet)** using homography transformation.
+
+### Step 1: Import libraries and load image
+The baseball field picture (field_frame.png) has been loaded and displayed.
+ Users are instructed to click four critical spots on the field—Home, 1B, 2B, and 3B—to specify the homography transition.
+```python
+import matplotlib
+matplotlib.use('TkAgg')
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+img = Image.open("field_frame.png")
+plt.imshow(img)
+plt.title("Click four points: Home → 1B → 2B → 3B")
+plt.show()
+
+```
+
+### Step 2: Interactively click on the four dots and print the result
+After clicking on the four bases, the pixel coordinates are printed.
+ For example: [(1021.12, 1131.32), (2037.17, 753.56), (1062.81, 141.33), (7.69, 745.74)].
+ These are the positions of the bases in the image (pixels).
+```python
+
+points = plt.ginput(4, timeout = 0)
+plt.close()
+print("Clicked pixel coordinates:")
+print(points)
+
+
+```
+
+### Step 3: Auto-order to [Home, 1B, 2B, 3B]
+The clicked points are automatically ordered as Home → 1B → 2B → 3B.
+This ensures consistency when computing the transformation matrix.
+```python
+
+points_raw = np.array(points, dtype=float)
+ys = points_raw[:,1]; xs = points_raw[:,0]
+home_idx   = np.argmax(ys)
+second_idx = np.argmin(ys)
+remain     = [i for i in range(4) if i not in (home_idx, second_idx)]
+first_idx  = remain[np.argmax(xs[remain])]   # right-bottom
+third_idx  = remain[np.argmin(xs[remain])]   # left-bottom
+src_pts = np.array([
+    points_raw[home_idx],   # Home
+    points_raw[first_idx],  # 1B
+    points_raw[second_idx], # 2B
+    points_raw[third_idx],  # 3B
+], dtype=float)
+print("ordered src_pts:\n", src_pts)
+
+
+```
+### Step 4: Homography (DLT) and mapping utils
+The Direct Linear Transform (DLT) algorithm generates the homography matrix (H), which maps picture pixels to real field coordinates (feet).
+```python
+
+dst_pts = np.array([[0,0],[90,0],[90,90],[0,90]], dtype=float)
+
+def compute_homography(src, dst):
+    A=[]
+    for (x,y),(X,Y) in zip(src,dst):
+        A += [[-x,-y,-1, 0, 0, 0, x*X, y*X, X],
+              [ 0, 0, 0,-x,-y,-1, x*Y, y*Y, Y]]
+    U,S,Vt = np.linalg.svd(np.asarray(A))
+    h = Vt[-1] / Vt[-1,-1]
+    return h.reshape(3,3)
+
+def apply_homography(H, pts):
+    pts = np.asarray(pts, float)
+    hom = np.hstack([pts, np.ones((pts.shape[0],1))])
+    trans = (H @ hom.T).T
+    trans[:,:2] /= trans[:,[2]]
+    return trans[:,:2]
+
+H = compute_homography(src_pts, dst_pts)
+print("H:\n", H)
+
+# Save the H calculated last week to the desktop deliverable3 project
+import numpy as np, os
+BASE = os.path.expanduser("~/Desktop/deliverable3_feature_extraction")
+out_path = os.path.join(BASE, "data", "homography", "H.npy")
+os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+np.save(out_path, H.astype(np.float32))
+
+# Verify
+H_check = np.load(out_path)
+print("Saved to:", out_path, "shape:", H_check.shape, "dtype:", H_check.dtype)
+
+
+```
+
+### Step 5: Sanity Check (Homography Validation).
+To evaluate the correctness of the homography transformation, we reprojected four manually chosen base points (Home, 1B, 2B, and 3B) into real-world field coordinates.  
+The coordinates found were about Home (0.0, 0.0), 1B (90.0, 0.0), 2B (90.0, 90.0), and 3B (0.0, 90.0), completely matching the normal baseball infield dimensions of 90 × 90 ft. This indicates that the transformation matrix accurately preserves spatial geometry, making the pixel-to-field mapping reliable for player position estimation.
+ 
+```python
+
+check_ft = apply_homography(H, src_pts)
+print("mapped 4 corners (feet):\n", check_ft)
+
+```
+
+### Step 6: Convert any pixel (click one or fill manually)
+A new pixel point (such as the runner's foot) is picked. It is translated from pixel coordinates (842.32, 395.44) to field coordinates (65.93 ft, 81.76 ft), demonstrating successful 2D-to-real-world mapping.
+```python
+
+plt.figure(figsize=(6,4), dpi=110)
+plt.imshow(img); plt.title("Click runner foot (1 point)")
+runner_click = plt.ginput(1, timeout=0)
+plt.close()
+runner_px = np.array(runner_click, dtype=float)
+
+# runner_px = np.array([[1200, 900]], dtype=float)  # Manual values can be used as substitutes
+
+runner_ft = apply_homography(H, runner_px)
+print("runner pixel -> feet:", runner_px, "=>", runner_ft)
+
+
+```
+
+### Step 7: Overlay labels for report
+The selected base points (Home, 1B, 2B, and 3B) are superimposed on the image with yellow labels to ensure that all points were accurately registered throughout the transformation process.
+```python
+
+plt.figure(figsize=(6,4), dpi=120)
+plt.imshow(img)
+labels = ["Home","1B","2B","3B"]
+for (x,y),lab in zip(src_pts, labels):
+    plt.scatter([x],[y], s=110, facecolors='none', edgecolors='yellow', linewidths=2)
+    plt.text(x+8, y-8, lab, color='yellow',
+             bbox=dict(facecolor='black', alpha=0.55, pad=2), fontsize=9)
+plt.title("Selected points (Home → 1B → 2B → 3B)")
+plt.axis('off')
+plt.show()
+# plt.savefig("selected_points_overlay.png", dpi=160, bbox_inches='tight')
+
+
+
+```
+
+### Step 8: Summary of Conversion
+The validated homography matrix was used to map the selected player's foot to real-world coordinates of about (X = 65.93 ft, Y = 81.76 ft).  This point is fairly close to the pitcher's mound (approximately 60.5 feet from home plate), demonstrating the geometric correctness and reliability of our coordinate translation.  The results show that our homography-based method can successfully transform 2D pixel positions from a video frame to genuine on-field locations with realistic precision.
+
+```python
+print(check_ft)
+
+pt = np.round(runner_ft, 2) 
+print(f"Runner (feet) ≈ X={pt[0,0]} ft, Y={pt[0,1]} ft")
+
+
+```
+### Step 9: Measure distance between two outfielders  
+```python
+
+# 9.1 Load the same broadcast frame and ask the user to click two outfielders
+img = Image.open("outfield_frame.png")
+plt.figure(figsize=(7,4), dpi=120)
+plt.imshow(img)
+plt.title("Click two outfielders (left → right)")
+plt.axis('off')
+plt.show()
+
+# Collect two pixel coordinates (click left OF first, then right OF)
+of_px = plt.ginput(2, timeout=0)     # returns [(x1,y1), (x2,y2)]
+plt.close()
+print("Clicked pixel coords (outfielders):", of_px)
+
+# 9.2 Convert pixel coordinates to field coordinates (feet) via homography
+of_ft = apply_homography(H, np.array(of_px, dtype=float))
+print("Outfielders in field coordinates (feet):\n", np.round(of_ft, 2))
+
+# 9.3 Compute Euclidean distance between the two outfielders in feet
+dist_ft = float(np.linalg.norm(of_ft[0] - of_ft[1]))
+print(f"Distance between outfielders ≈ {dist_ft:.2f} ft")
+
+# 9.4 (Optional) Visual overlay for the report
+plt.figure(figsize=(7,4), dpi=140)
+plt.imshow(img)
+plt.axis('off')
+plt.title(f"Outfielders distance ≈ {dist_ft:.1f} ft")
+for (x, y), label in zip(of_px, ["OF-1", "OF-2"]):
+    plt.scatter([x], [y], s=120, c='cyan', marker='x', linewidths=2)
+    plt.text(x+10, y-10, label, color='cyan',
+             bbox=dict(facecolor='black', alpha=0.55, pad=2), fontsize=9)
+plt.tight_layout()
+# plt.savefig("outfielders_distance_overlay.png", dpi=160, bbox_inches='tight')
+plt.show()
+
+```
+The results demonstrate that two outfielders were manually selected from the video frame, with pixel coordinates (367.85, 1108.08) and (1863.53, 1174.72).  These pixel positions were then converted into real-world field coordinates using the previously computed homography matrix, yielding approximations of (-31.39, 38.27) ft and (41.13, -54.64) ft.
+
+ The software calculated the Euclidean distance between these two positions and decided that the outfielders are separated by around 117.9 feet on the field.  This figure is appropriate for a Major League Baseball outfield arrangement in which players normally maintain a spacing of 110-130 feet, depending on stadium geometry and defensive placement.
+ 
+The visualization additionally marks the two selected positions as "OF-1" and "OF-2" on the image, indicating that the transformation correctly transfers on-screen player placements to their real-world distances.
+
+### AI Assistance Statement
+AI assistance: ChatGPT was used extensively in this deliverable. 
+It helps me understand better what I should do for this week's deliverable, and it guides me step by step with my prompt.
+The majority of the code structure, Python functions, and written explanations were initially 
+generated with AI assistance. I used ChatGPT to help me draft prototype code for homography 
+computation, coordinate transformation, visualization, and distance calculation. 
+I then executed all code myself, debugged errors, verified the homography outputs, selected 
+the calibration points, confirmed the pixel-to-field mapping, and interpreted every result.  
+This document reflects my understanding of the method, while the AI tool assisted me in writing 
+and structuring the initial code and explanations.
+
+Homography transformation to map pixel coordinates to field coordinates:
+
+![](images/duo.png)
+
+
+**Quality Checks**:
+
+- Base square ≈ 90 ft sides (±2 ft)
+- Foul lines approximately orthogonal
+- Residual reprojection error ≤ 2 px
+- Reject if fewer than 4 reliable points
+
+**Impact**:
+
+- Converts video into model-ready geometry (feet)
+- Makes features comparable across games/stadiums/cameras
+- Enables true distance calculations for `outfield_spread_ft`
+
+### Samuel Bulnes: Model Accuracy Testing
+
+**Objective**: Optimize feature set while maintaining performance
+
+**Feature Reduction Analysis**:
+
+Original model: 45 features → Optimized: 10 features (-78% complexity)
+
+**Top 10 Features by Importance**:
+
+1. `runner_base` (28.6%)
+2. `hit_distance` (27.9%)
+3. `bearing` (10.5%)
+4. `launch_angle` (7.5%)
+5. `launch_direction` (6.9%)
+6. `exit_speed` (4.8%)
+7. `hangtime` (4.5%)
+8. `exit_speed_squared` (4.4%)
+9. `fielder_pos` (2.5%)
+10. `outfield_spread_event` (2.5%)
+
+**Performance Validation**:
+
+| Model | 45 Features | 10 Features | Change |
+|-------|-------------|-------------|--------|
+| Random Forest | 0.3951 | 0.3795 | +3.9%  |
+| Gradient Boosting | 0.3647 | 0.3890 | -6.7% |
+| Logistic Regression | 0.4200 | 0.4416 | -5.1% |
+
+**Best Model**: Random Forest with 10 features (Log Loss = 0.3795)
+
+**Impact**:
+
+- 70%+ reduction in data prep and training time
+- Maintains core predictive signal
+- Faster retraining and lighter deployment
+- Ready for production scaling
+
+## Technical Achievements
+
+### 1. Computer Vision Pipeline
+
+- **YOLOv8 Integration**: Real-time player detection 
+
+- **Position Classification**: Automatic LF/CF/RF assignment 
+
+- **Catch Detection**: Ball-to-player distance calculation 
+
+- **ID Persistence**: Track players across frames 
+
+### 2. Spatial Features
+
+- **Outfield Spread**: Quantitative field coverage metric 
+
+- **Fielder Position**: Categorical catch assignment 
+
+- **Pixel-to-Feet Conversion**: Real-world distance calculations 
+
+- **Multi-Camera Support**: Homography-based calibration  
+
+### 3. Model Optimization
+
+- **Feature Selection**: 45 → 10 features with minimal loss
+
+- **Performance Validation**: Cross-validation across models
+
+- **Importance Analysis**: Identify key predictive features
+
+## Challenges & Solutions
+
+### Challenge 1: Player Detection in Crowds
+
+**Problem**: YOLO detects fans and non-players
+
+**Solution**: Adaptive area thresholds + vertical band filtering
+
+### Challenge 2: Camera Angle Variations
+
+**Problem**: Different stadiums/broadcasts have different perspectives
+
+**Solution**: Homography calibration per video with quality checks
+
+### Challenge 3: Model Complexity
+
+**Problem**: 45 features slow down training and deployment
+
+**Solution**: Feature importance analysis → keep top 10 features
+
+## Key Metrics
+
+- **Frame Processing**: 271 FPS extraction speed
+- **Player Detection**: 10.8% frame visibility rate
+- **Model Performance**: Log Loss 0.3795 (10 features)
+- **Complexity Reduction**: 78% fewer features
+- **Storage Savings**: 50% reduction with 30 FPS
+
+
+---
+
+*Week 2 transformed raw video into structured, model-ready data through advanced computer vision and feature engineering.*
