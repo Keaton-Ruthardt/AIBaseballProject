@@ -275,13 +275,18 @@ The pipeline generates:
 
 ### Performance Summary
 
-**Model Performance** (Expected):
-- Accuracy: 85-90%
-- Precision: 80-85%
-- Recall: 90-95%
-- F1 Score: 85-90%
-- Log Loss: 0.35-0.45
-- AUC: 0.85-0.92
+**Model Performance** :
+1. Accuracy (0.82)
+  The model correctly predicted Safe/Out 82% of the time.
+
+2. Recall (0.78)
+       Recall for “Safe” = Of all plays that were actually Safe, the model correctly labeled 78% of them as Safe.
+
+3. Precision (0.83)
+     Precision for “Safe” = When the model predicts Safe, it’s correct 83% of the time.
+
+4. F1 Score (0.81)
+             F1 balances precision and recall especially important when the cost of errors is not equal.
 
 **Pipeline Performance**:
 - Processing time: ~53 seconds/video
