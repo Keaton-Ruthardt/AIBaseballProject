@@ -136,7 +136,6 @@ results/
 | **AUC** | 0.89 |
 | **Log Loss** | 0.40 |
 | **Processing Time** | ~53s/video |
-| **Success Rate** | 60-70% |
 | **Feature Count** | 8 |
 
 ## Key Technologies
