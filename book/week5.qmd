@@ -134,6 +134,19 @@ def create_side_by_side_demo(original_video, annotated_video, prediction_prob, o
 - ✅ Probability percentage
 - ✅ Professional styling
 
+
+### Post Week 5: MAE findings and results
+
+**Process**:
+- Tested all ~100 videos and calculated how far off our predictions were from our model to the actual result.
+- For example, if our prediction gave safe with a 80% predicition and the actual result was safe (1). Then our error was 0.2. 
+- Tested this for each individual video and then averaged our errors. 
+
+**Results**:
+- Our MAE was ~0.32
+- This represents that our model is on average 32% off of the exact (1) safe play or the exact (0) out play.
+
+
 ### Joshua Cano: Project Documentation
 
 **Objective**: Create comprehensive GitHub documentation
