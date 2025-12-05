@@ -28,26 +28,32 @@ Complete pipeline: Video → Tracking → Features → Prediction
 
 def main():
     # Stage 1: Video Tracking
-    tracker = SimpleOutfielderTracker()
-    tracker_csv, annotated_video = tracker.process_video(
-        video_path,
-        frame_window=(300, 450)  # Outfield action window
-    )
+    tracker_csv = output_dir / f"{video_name}_tracker.csv"
+    annotated_video = output_dir / f"{video_name}_annotated.mp4"
+    run_tracker(args.video, str(tracker_csv), str(annotated_video), device = args.device)
     
     # Stage 2: Feature Extraction
-    converter = BaseballFieldConverter()
-    features_csv = converter.extract_features(
-        tracker_csv,
-        video_metadata
-    )
+    features_df = extract_features(str(tracker_csv), statcast_csv, video_name)
+
+    # Stage 3: Save Features
+    features_file = output_dir / f"{video_name}_features.csv"
+    features_df.to_csv(features_files, index = False)
     
     # Stage 3: Model Prediction
-    predictor = RunnerAdvancePredictor()
-    predictor.train(train_data)
-    prediction = predictor.predict(features_csv)
+    results = run_model_prediction(features_df)
     
-    # Save outputs
-    save_results(prediction, output_dir)
+    # Save output
+    results_file = output_dir / f"{video_name}_prediction.txt"
+    with open(results_file, 'w') as f:
+        f.write(f"Video: {video_name}\n")
+        f.write(f"Prediction: {'ADVANCES' if results['prediction'] == 1 else 'STAYS'}\n")
+        f.write(f"Probability: {results['probability']:.3f}\n")
+        f.write(f"\nFeatures:\n")
+        for col in features_df.columns:
+            if col != 'video_name':
+                f.write(f"  {col}: {features_df[col].iloc[0]}\n")
+
+    print(f"\n[OK] Results saved: {results_file}")
 ```
 
 **Component Integration**:
