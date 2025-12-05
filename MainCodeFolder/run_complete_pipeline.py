@@ -39,8 +39,8 @@ def run_tracker(video_path, output_csv, output_video=None):
     print("   [OK] Tracker initialized")
 
     print(f"\n[2/3] Processing video: {video_path}")
-    print("   Processing frames 180-400 (outfield action)")
-    results = tracker.process_video(video_path, output_path=output_video, start_frame=180, end_frame=400)
+    print("   Processing frames 180-300 (outfield action)")
+    results = tracker.process_video(video_path, output_path=output_video, start_frame=180, end_frame=300)
     print(f"   Processed {len(results)} frames")
     if output_video:
         print(f"   [OK] Annotated video saved: {output_video}")
