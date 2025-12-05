@@ -131,25 +131,43 @@ Confidence: 79.2%
 ```python
 import time
 
-def benchmark_pipeline(video_path):
-    times = {}
+def main():
+    # Stage 1: Video Tracking
+    t0 = time.perf_counter() # Added time variable
+    tracker_csv = output_dir / f"{video_name}_tracker.csv"
+    annotated_video = output_dir / f"{video_name}_annotated.mp4"
+    run_tracker(args.video, str(tracker_csv), str(annotated_video), device = args.device)
+    t1 = time.perf_counter() # Added time variable
+    print(f"\n[Timing] Tracking stage took {t1 - t0:.1f} seconds") # Added to see how long this chunk of code took
+
+    # Stage 2: Feature Extraction
+    t2 = time.perf_counter() # Added time variable
+    features_df = extract_features(str(tracker_csv), statcast_csv, video_name)
+    t3 = time.perf_counter() # Added time variable
+    print(f"\n[Timing] Feature extraction took {t3 - t2:.1f} seconds") # Added to see how long this chunk of code took
+
+    # Stage 3: Save Features
+    features_file = output_dir / f"{video_name}_features.csv"
+    features_df.to_csv(features_files, index = False)
     
-    # Stage 1: Tracking
-    start = time.time()
-    tracker_csv = run_tracker(video_path)
-    times['tracking'] = time.time() - start
-    
-    # Stage 2: Feature extraction
-    start = time.time()
-    features = extract_features(tracker_csv)
-    times['features'] = time.time() - start
-    
-    # Stage 3: Model prediction
-    start = time.time()
-    prediction = run_model(features)
-    times['model'] = time.time() - start
-    
-    return times
+    # Stage 3: Model Prediction
+    t4 = time.perf_counter() # Added time variable
+    results = run_model_prediction(features_df)
+    t5 = time.perf_counter() # Added time variable
+    print(f"\n[Timing] Model training + prediction took {t5 - t4:.1f} seconds") # Added to see how long this chunk of code took
+
+    # Save output
+    results_file = output_dir / f"{video_name}_prediction.txt"
+    with open(results_file, 'w') as f:
+        f.write(f"Video: {video_name}\n")
+        f.write(f"Prediction: {'ADVANCES' if results['prediction'] == 1 else 'STAYS'}\n")
+        f.write(f"Probability: {results['probability']:.3f}\n")
+        f.write(f"\nFeatures:\n")
+        for col in features_df.columns:
+            if col != 'video_name':
+                f.write(f"  {col}: {features_df[col].iloc[0]}\n")
+
+    print(f"\n[OK] Results saved: {results_file}")
 ```
 
 **Performance Results**:
@@ -212,13 +230,13 @@ removed_features = [
 
 # KEPT: Stable, high-importance features
 final_features = [
-    'runner_base',       # 24.2% importance
-    'hit_distance',      # 20.3%
-    'exit_speed_squared',# 2.9%
-    'exit_speed',        # 2.5%
-    'hangtime',          # 2.1%
-    'launch_angle',      # 1.9%
-    'fielder_pos'        # 2.3%
+    'runner_base',       # 44.0% importance
+    'hit_distance',      # 35.5%
+    'exit_speed_squared',# 5.9%
+    'exit_speed',        # 5.5%
+    'hangtime',          # 3.1%
+    'launch_angle',      # 2.9%
+    'fielder_pos'        # 3.1%
 ]
 ```
 
@@ -273,34 +291,47 @@ def predict(self, features):
 **Objective**: Comprehensive end-to-end testing on real videos
 
 **Evaluation Process**:
+def main():
+    pred = load_predictions()
+    labels = load_labels()
+    df = pred.merge(labels, on="video_id", how="inner")
+    if df.empty:
+        raise RuntimeError(
+            "Merged 0 rows. Check video_id alignment with metadata.")
 
-```python
-def evaluate_system(video_list):
-    results = []
-    
-    for video_path in video_list:
-        try:
-            # Run complete pipeline
-            prediction = run_pipeline(video_path)
-            
-            # Compare to ground truth
-            true_label = get_ground_truth(video_path)
-            
-            results.append({
-                'video': video_path,
-                'prediction': prediction['outcome'],
-                'probability': prediction['probability'],
-                'true_label': true_label,
-                'correct': prediction['outcome'] == true_label
-            })
-        except Exception as e:
-            results.append({
-                'video': video_path,
-                'error': str(e)
-            })
-    
-    return pd.DataFrame(results)
-```
+    # Prepare arrays
+    y_prob = df['predicted_prob'].clip(1e-9, 1 - 1e-9).to_numpy()
+    y_true = df['actual_label'].astype(int).to_numpy()
+    y_pred = (y_prob >= 0.5).astype(int)
+
+    # Compute core metrics
+    logloss = log_loss(y_true, y_prob)
+    precision = precision_score(y_true, y_pred, zero_division=0)
+    recall = recall_score(y_true, y_pred, zero_division=0)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+
+    # Compute counts
+    correct = int((y_pred == y_true).sum())
+    incorrect = int(len(y_true) - correct)
+    fp = int(((y_pred == 1) & (y_true == 0)).sum())
+    fn = int(((y_pred == 0) & (y_true == 1)).sum())
+
+    # Display results in terminal
+    print("\n=== Overall Metrics ===")
+    print(f"Log Loss : {logloss:.3f}")
+    print(f"Precision: {precision * 100:.1f}%")
+    print(f"Recall   : {recall * 100:.1f}%")
+    print(f"F1 Score : {f1 * 100:.1f}%")
+    print(f"Samples  : {len(y_true)}")
+
+    print("\nPrediction Distribution:")
+    print(
+        f"  - Correct  : {correct}/{len(y_true)} ({correct / len(y_true) * 100:.1f}%)")
+    print(
+        f"  - Incorrect: {incorrect}/{len(y_true)} ({incorrect / len(y_true) * 100:.1f}%)")
+    print(f"  - False positives: {fp}")
+    print(f"  - False negatives: {fn}")
+
 
 **Test Dataset**: 35 sacrifice fly videos
 
@@ -343,39 +374,129 @@ OUT plays struggled due to tracking failures:
 **Research & Design**:
 
 ```python
-import cv2
+/** 
+* Display the video from webcam and overlay text 
+*/ 
+#include <stdio.h> 
+#include "cv.h" 
+#include "highgui.h" 
+int main(int argc, char** argv) 
+{ 
+CvCapture *capture; 
+IplImage *frame; 
+double t, ms = 0; 
+bool finished = false; 
+/* initialize webcam */ 
+capture = cvCaptureFromCAM(0); 
+CvFont myFont; //Initialise font 
+cvInitFont(&myFont,CV_FONT_HERSHEY_COMPLEX_SMALL ,1.5f,1.5f,0,1,8); while (!finished) 
+{ 
+/* display frame */ 
+frame = cvQueryFrame(capture); 
+cvPutText( frame, "My Text", cvPoint(50,50), &myFont , cvScalar(128) ); 
+// use other functions to draw something cvShowImage("Stream",frame); } 
+/* free memory */ 
+cvReleaseCapture(&capture); 
+return 0; 
+}
 
-def add_prediction_overlay(frame, prediction, probability):
-    """
-    Add prediction graphics to video frame
-    """
-    # Overlay configuration
-    overlay_color = (0, 255, 0) if prediction == 'SAFE' else (0, 0, 255)
-    
-    # Add prediction label
-    cv2.putText(
-        frame,
-        f"Prediction: {prediction}",
-        org=(50, 50),
-        fontFace=cv2.FONT_HERSHEY_BOLD,
-        fontScale=1.5,
-        color=overlay_color,
-        thickness=3
-    )
-    
-    # Add probability
-    cv2.putText(
-        frame,
-        f"Confidence: {probability:.1%}",
-        org=(50, 100),
-        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-        fontScale=1.0,
-        color=(255, 255, 255),
-        thickness=2
-    )
-    
-    return frame
 ```
+## Overlay Code (Python in Quarto) 
+```{r} 
+library(reticulate) 
+# If you want to force your ai-env: 
+use_virtualenv("C:/ai-env", required = TRUE) 
+``` 
+```{python} 
+import cv2 
+from pathlib import Path 
+# --- 1. Paths and prediction text ----------------------------------------- 
+video_path = Path(r"C:\Users\Diego\Downloads\baseballVideos\sac_fly_001.mp4") output_path = video_path.with_name(video_path.stem + "_annotated.mp4") 
+prediction_text = "Prediction: RUNNER ADVANCES (SAFE)" 
+confidence_text = "Confidence: 79.2%" 
+# --- 2. Open the video ---------------------------------------------------- 
+cap = cv2.VideoCapture(str(video_path)) 
+if not cap.isOpened(): 
+raise RuntimeError(f"Could not open video: {video_path}") 
+fps = cap.get(cv2.CAP_PROP_FPS) 
+if fps == 0 or fps is None: 
+fps = 30.0 
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) 
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) 
+fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
+out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height)) 
+# --- 3. Configure font and overlay geometry -------------------------------- 
+font = cv2.FONT_HERSHEY_SIMPLEX 
+font_scale = 1.0 
+thickness = 2 
+text_color = (0, 0, 0) # black 
+border_color = (0, 0, 0) # black
+
+bg_color = (230, 230, 230) # light gray 
+pred_pos = (40, 60) 
+confidence_pos = (40, 110) 
+(pred_size, pred_baseline) = cv2.getTextSize( 
+prediction_text, font, font_scale, thickness 
+) 
+(conf_size, conf_baseline) = cv2.getTextSize( 
+confidence_text, font, font_scale, thickness 
+) 
+pred_w, pred_h = pred_size 
+conf_w, conf_h = conf_size 
+padding = 20 
+box_x1 = min(pred_pos[0], confidence_pos[0]) - padding 
+box_x2 = max(pred_pos[0] + pred_w, confidence_pos[0] + conf_w) + padding box_y1 = pred_pos[1] - pred_h - padding 
+box_y2 = confidence_pos[1] + conf_baseline + padding 
+box_x1 = max(box_x1, 0) 
+box_y1 = max(box_y1, 0) 
+box_x2 = min(box_x2, width - 1) 
+box_y2 = min(box_y2, height - 1) 
+# --- 4. Main loop: read frames, draw box + text, write out ----------------- frame_count = 0 
+while True: 
+ret, frame = cap.read() 
+if not ret: 
+break 
+cv2.rectangle( 
+frame, 
+(box_x1, box_y1), 
+(box_x2, box_y2), 
+bg_color, 
+thickness=cv2.FILLED 
+) 
+cv2.rectangle( 
+frame, 
+(box_x1, box_y1), 
+(box_x2, box_y2), 
+border_color, 
+thickness=2
+) 
+cv2.putText( 
+frame, 
+prediction_text, 
+pred_pos, 
+font, 
+font_scale, 
+text_color, 
+thickness, 
+cv2.LINE_AA 
+) 
+cv2.putText( 
+frame, 
+confidence_text, 
+confidence_pos, 
+font, 
+font_scale, 
+text_color, 
+thickness, 
+cv2.LINE_AA 
+) 
+out.write(frame) 
+frame_count += 1 
+# --- 5. Clean up ----------------------------------------------------------- 
+cap.release() 
+out.release() 
+```
+
 
 **Overlay Components**:
 1. Prediction label ("SAFE" / "OUT")
