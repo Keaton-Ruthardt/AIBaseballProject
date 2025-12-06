@@ -54,6 +54,9 @@ Samuel: Model Integration & Testing
 - Quality-controlled annotations
 - Foundation for accuracy testing
 
+AI Usage:
+No AI was used
+
 ### Keaton Ruthardt: Enhanced Player Tracking System
 
 **Objective**: Robust outfielder tracking with catch detection
@@ -286,6 +289,9 @@ if __name__ == "__main__":
 - **Multi-Player Support**: Handles 0-3 outfielders per frame
 - **Coordinate Export**: Pixel positions for all detected players
 
+AI Usage:
+I used AI to help refine the written explanation, including the objective, system flow description, and feature bullets, and to lightly polish the formatting of the code and CSV description. Mostly all core implementation logic, computer vision pipeline, tracking methods, and CSV export structure were written and tested by me. (Claude Sonnet)
+
 ### Joshua Cano: Validation Script
 
 **Objective**: Verify tracking CSV data quality before model input
@@ -417,6 +423,8 @@ From tracking CSV, the model now computes:
 - Seamless data flow
 - 9 engineered features
 
+AI Usage:
+Samuel used AI (GPT 5) to help refine the wording and structure of this summary, including the descriptions of the model pipeline, engineered features, and technical achievements. All data integration logic, feature engineering steps, and validation processes were designed and implemented by Samuel using his own code and experiments.
 
 ## Challenges & Solutions
 
