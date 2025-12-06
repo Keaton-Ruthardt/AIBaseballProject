@@ -2,7 +2,7 @@
 ## Baseball Runner Advancement Prediction System
 
 **Course:** Artificial Intelligence 
-**Date:** December 2024
+**Date:** December 2025
 
 ---
 
