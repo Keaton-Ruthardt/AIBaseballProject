@@ -51,6 +51,9 @@ Week 1 established the complete technical foundation for our AI baseball predict
 -  Consistent file organization
 -  Collaboration infrastructure established
 
+AI Usage:
+- No AI used
+
 ### Joshua Cano: OpenCV Setup & Environment Testing
 
 **Objective**: Configure and validate development environment
@@ -130,6 +133,9 @@ Using `sac_fly_001.mp4`:
 - Confirmed server compatibility for deployment
 - Baseline test established for future work
 
+AI Usage:
+- Code organization and OpenCV understanding (GPT 5)
+
 ### Duoduo Cai: MLB Film Room Data Source Research
 
 **Objective**: Identify reliable video and metadata sources
@@ -187,6 +193,9 @@ MLB's partnership with **Google Cloud** produces:
 - Established metadata schema
 - Identified key features for model
 - Validated data quality and consistency
+
+AI Usage:
+- Understanding MLB Film Room and help with writing report over various other video sources (GPT 5)
 
 ### Samuel Bulnes: Existing Model Analysis
 
@@ -288,6 +297,9 @@ exit_speed_sq = exit_speed ** 2
 | Varying camera angles | Field-line calibration |
 | Inconsistent lighting | Adaptive thresholding |
 
+AI Usage:
+- Help with understanding the original model and various strategies to extract features from videos (GPT 5)
+
 ### Diego Mendoza: Computer Vision Tools Research
 
 **Objective**: Evaluate object detection frameworks for baseball analysis
@@ -380,6 +392,9 @@ for framework in [YOLO, CNN, TensorFlow]:
 - YOLO selected for tracking  
 - Testing plan established  
 - Performance metrics defined
+
+AI Usage: 
+AI was used to (1) brainstorm and identify potential computer-vision tracking frameworks appropriate for the project (e.g., YOLOv8) (GPT 5)
 
 ## Key Decisions
 
