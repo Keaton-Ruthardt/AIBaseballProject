@@ -121,6 +121,8 @@ Prediction: RUNNER ADVANCES (SAFE)
 Probability: 0.791881
 Confidence: 79.2%
 ```
+AI Usage:
+I used AI (Claude Sonnet) to help refine the wording and organization of this write-up, including the descriptions of the system architecture, component integration, code implementation for clean reusable environment, and automation features. The overall pipeline design and model integration logic were created and tested by me.
 
 ### Joshua Cano: Performance Benchmarking
 
@@ -215,6 +217,9 @@ python run_complete_pipeline.py \
 - Batch processing multiple videos
 - Pipeline now GPU-enabled for future scaling
 
+AI Usage:
+I used AI (Claude Sonnet) to help refine the wording and structure of this performance summary, including the explanation of timing instrumentation, result tables, and the analysis of CPU vs MPS performance. All benchmarking code, timing logic, hardware tests, and interpretations of the speedup results were designed and executed by me.
+
 ### Samuel Bulnes: Model Improvements and Robustness
 
 **Objective**: Stabilize model for production pipeline
@@ -288,6 +293,10 @@ def predict(self, features):
 - ✅ Consistent predictions
 - ✅ Real-world compatibility
 - ✅ Production readiness
+
+
+AI Usage:
+Samuel used AI (GPT 5) to help refine the wording, structure, and clarity of this write-up, including the explanation of removed features, robustness logic, and performance trade-offs. All modeling decisions, code changes, feature selection, and evaluation metrics were based on his own experiments and implementation.
 
 ### Duoduo Cai: System Evaluation
 
@@ -373,6 +382,9 @@ OUT plays struggled due to tracking failures:
 2. Collect more OUT play videos
 3. Handle edge cases better
 4. Add fallback strategies for tracking failures
+
+AI Usage: 
+I used AI (GPT 5) to help generate and format the print statements in the evaluation script and to polish the wording of the written summary. All evaluation logic, metric calculations, dataset setup, and analysis of results were implemented and interpreted by me.
 
 ### Diego Mendoza: Video Overlay System
 
@@ -511,6 +523,9 @@ out.release()
 2. Probability percentage
 3. Color coding (green = SAFE, red = OUT)
 4. Professional font and positioning
+
+AI Usage:
+AI was used (GPT 5) to confirm the structure of a simple output function (a minimal, readable output/print or logging step) intended as a placeholder. Team leads implemented, integrated, and fully fleshed out the function in the main code.
 
 **Future Enhancements**:
 
