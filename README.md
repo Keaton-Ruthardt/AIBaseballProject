@@ -16,7 +16,7 @@ The system processes a raw MLB game clip and outputs:
 ---
 
 ### Environnment Setup
-Please go to Professor_Setup_Guide.md 
+Please go to **Professor_Setup_Guide.md**
 
 ### Output Files
 
