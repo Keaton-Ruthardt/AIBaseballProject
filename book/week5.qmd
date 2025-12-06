@@ -146,6 +146,10 @@ def create_side_by_side_demo(original_video, annotated_video, prediction_prob, o
 - Our MAE was ~0.32
 - This represents that our model is on average 32% off of the exact (1) safe play or the exact (0) out play.
 
+AI Usage:
+ChatGPT said:
+
+I used AI (Claude Sonnet) to help refine the wording and organization of this section, including the description of the demo video components, function documentation, and the explanation of the MAE calculation and results. The demo video function, video processing logic, MAE computations, and underlying experimental setup were designed, coded, and executed by me.
 
 ### Joshua Cano: Project Documentation
 
@@ -212,6 +216,9 @@ The pipeline generates:
 - `*_annotated.mp4` - Annotated video
 ````
 
+AI Usage:
+I used AI (Claude Sonnet) to help refine the wording, structure, and organization of the project documentation, including example commands, section headings, and usage explanations. All actual documentation content, pipeline design, and example workflows were based on my own project work and implementation.
+
 ### Duoduo Cai: Dataset Expansion (SAFE Plays)
 
 **Objective**: Collect 15 additional SAFE plays for testing
@@ -235,6 +242,9 @@ The pipeline generates:
 - Total dataset size increased
 - Better coverage of SAFE scenarios
 - Improved model validation set
+
+AI Usage:
+No AI was used
 
 ### Diego Mendoza: Dataset Expansion (SAFE Plays + Statcast)
 
@@ -263,6 +273,9 @@ The pipeline generates:
 - 15 new SAFE plays
 - Improved data quality
 - Ready for final testing
+
+AI Usage:
+No AI was used
 
 ### Samuel Bulnes: Comprehensive Model Testing
 
@@ -315,6 +328,8 @@ The pipeline generates:
 Actual SAFE   [TP]    [FN]
        OUT    [FP]    [TN]
 ```
+AI Usage:
+Samuel used AI (GPT 5) to help refine the wording and structure of this performance summary, including the explanations of each metric and the pipeline performance section. All metric calculations, performance results, and interpretation of model behavior were based on his own code, evaluation scripts, and analysis.
 
 **Key Insights**:
 - Identify failure modes
