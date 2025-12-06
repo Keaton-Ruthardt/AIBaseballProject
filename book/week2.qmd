@@ -25,6 +25,9 @@ Week 2 marked a major technical milestone with the development of our core compu
 - `outfield_spread_event`: Spacing between LF/CF/RF
 - `fielder_pos`: Which outfielder records the catch
 
+AI Usage:
+AI was utilized to enhance documentation by suggesting additional details that would be beneficial for a handoff procedure (e.g., what to record, what assumptions to document, and what troubleshooting notes to include). The team edited the documentation to match our workflow and constraints. (GPT 5)
+
 ### Joshua Cano: Frame Extraction Pipeline
 
 **Objective**: Build reliable OpenCV pipeline for analysis-ready frames
@@ -47,6 +50,9 @@ Week 2 marked a major technical milestone with the development of our core compu
 - Lower storage footprint
 - Consistent timestamps for alignment
 - Foundation for all downstream tracking
+
+AI Usage:
+- Help with code organization and further understanding OpenCV's library and documentation (Claude Sonnet)
 
 ### Keaton Ruthardt: Player Tracking System
 
@@ -184,6 +190,9 @@ class SimpleOutfielderTracker:
 - Visibility rate: 10.8% of frames had classifiable outfielders
 - Catch identification: 2 catches detected (frames 205 & 216)
 - Spacing metrics: LF-CF, CF-RF, LF-RF Euclidean distances
+
+AI Usage:
+Help with problem solving for the play frames and trying to not detect fans. Also helped with annotating the mp4. (Claude Sonnet)
 
 ### Duoduo Cai: Spatial Mapping System
 
@@ -391,16 +400,6 @@ The results demonstrate that two outfielders were manually selected from the vid
  
 The visualization additionally marks the two selected positions as "OF-1" and "OF-2" on the image, indicating that the transformation correctly transfers on-screen player placements to their real-world distances.
 
-### AI Assistance Statement
-AI assistance: ChatGPT was used extensively in this deliverable. 
-It helps me understand better what I should do for this week's deliverable, and it guides me step by step with my prompt.
-The majority of the code structure, Python functions, and written explanations were initially 
-generated with AI assistance. I used ChatGPT to help me draft prototype code for homography 
-computation, coordinate transformation, visualization, and distance calculation. 
-I then executed all code myself, debugged errors, verified the homography outputs, selected 
-the calibration points, confirmed the pixel-to-field mapping, and interpreted every result.  
-This document reflects my understanding of the method, while the AI tool assisted me in writing 
-and structuring the initial code and explanations.
 
 Homography transformation to map pixel coordinates to field coordinates:
 
@@ -419,6 +418,17 @@ Homography transformation to map pixel coordinates to field coordinates:
 - Converts video into model-ready geometry (feet)
 - Makes features comparable across games/stadiums/cameras
 - Enables true distance calculations for `outfield_spread_ft`
+
+AI Usage:
+ChatGPT was used extensively in this deliverable. 
+It helps me understand better what I should do for this week's deliverable, and it guides me step by step with my prompt.
+The majority of the code structure, Python functions, and written explanations were initially 
+generated with AI assistance. I used ChatGPT to help me draft prototype code for homography 
+computation, coordinate transformation, visualization, and distance calculation. 
+I then executed all code myself, debugged errors, verified the homography outputs, selected 
+the calibration points, confirmed the pixel-to-field mapping, and interpreted every result.  
+This document reflects my understanding of the method, while the AI tool assisted me in writing 
+and structuring the initial code and explanations.
 
 ### Samuel Bulnes: Model Accuracy Testing
 
@@ -487,6 +497,9 @@ Original model: 45 features → Optimized: 10 features (-78% complexity)
 - **Performance Validation**: Cross-validation across models
 
 - **Importance Analysis**: Identify key predictive features
+
+AI Usage:
+I used AI (GPT 5) to help refine the wording and formatting of this summary, including the description of the feature importance, model comparisons, and technical achievements. All modeling decisions, feature selection, and performance metrics were based on my own code, experiments, and interpretations.
 
 ## Challenges & Solutions
 
