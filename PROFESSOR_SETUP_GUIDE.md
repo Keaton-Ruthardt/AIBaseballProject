@@ -86,12 +86,12 @@ If you see an error or wrong version:
 - Try `python3 --version` instead
 - Or `py --version`
 
-### **Step 2: Extract Project Files**
+### **Step 2: Project Files**
 
-1. Extract the ZIP file you received:
-   ```
-   Baseball_Prediction_Project_Keaton.zip
-   ```
+1. Every file you need will be inside of MainCodeFolder:
+    ```
+    Download all files just like in the Github
+    ```
 
 2. Extract to a location like:
    ```
@@ -387,14 +387,9 @@ The pipeline processes baseball videos in 3 stages:
 
 ```bash
 python run_complete_pipeline.py \
-    --video DataBatch2-20251112T182025Z-1-001/DataBatch2/sac_fly_002.mp4 \
-    --metadata DataBatch2-20251112T182025Z-1-001/DataBatch2/video_metadata.csv \
+    --video Video-MetaData/sac_fly_002.mp4 \
+    --metadata Video-MetaData/video_metadata.csv \
     --output test_output
-```
-
-**Windows users:** Use this format (backslashes or forward slashes both work):
-```cmd
-python run_complete_pipeline.py --video DataBatch2-20251112T182025Z-1-001\DataBatch2\sac_fly_002.mp4 --metadata DataBatch2-20251112T182025Z-1-001\DataBatch2\video_metadata.csv --output test_output
 ```
 
 #### What You'll See:
