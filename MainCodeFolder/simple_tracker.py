@@ -269,7 +269,12 @@ class SimpleOutfielderTracker:
         start_frame: int = 0,
         end_frame: Optional[int] = None
     ) -> List[Dict]:
-        """Process video and return results."""
+        """
+        Process video and return results.
+
+        The output video includes ALL frames from the original video,
+        but bounding boxes are only drawn on frames within the tracking range.
+        """
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise ValueError(f"Cannot open video: {video_path}")
@@ -281,6 +286,7 @@ class SimpleOutfielderTracker:
 
         logger.info(f"Video: {video_path}")
         logger.info(f"Resolution: {width}x{height}, FPS: {fps}, Total frames: {total_frames}")
+        logger.info(f"Tracking frames {start_frame} to {end_frame if end_frame else total_frames}")
 
         writer = None
         if output_path:
@@ -290,54 +296,57 @@ class SimpleOutfielderTracker:
         results = []
         frame_idx = 0
 
-        if start_frame > 0:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-            frame_idx = start_frame
-
         try:
             while True:
                 ret, frame = cap.read()
                 if not ret:
                     break
-                if end_frame and frame_idx >= end_frame:
-                    break
 
-                result = self.process_frame(frame, frame_idx)
-                results.append(result)
+                # Determine if this frame is in the tracking range
+                in_tracking_range = frame_idx >= start_frame and (end_frame is None or frame_idx < end_frame)
 
-                # Visualize
-                if writer:
-                    vis = frame.copy()
+                if in_tracking_range:
+                    # Process frame with detection and tracking
+                    result = self.process_frame(frame, frame_idx)
+                    results.append(result)
 
-                    # Draw tracked players
-                    for player_id, player_data in result['tracked_players'].items():
-                        x1, y1, x2, y2 = player_data['bbox']
-                        cx, cy = player_data['center']
+                    # Visualize with bounding boxes
+                    if writer:
+                        vis = frame.copy()
 
-                        color = (0, 255, 0)  # Green
-                        if result['catcher_id'] == player_id:
-                            color = (0, 255, 255)  # Yellow for catcher
+                        # Draw tracked players
+                        for player_id, player_data in result['tracked_players'].items():
+                            x1, y1, x2, y2 = player_data['bbox']
+                            cx, cy = player_data['center']
 
-                        cv2.rectangle(vis, (x1, y1), (x2, y2), color, 2)
-                        cv2.putText(vis, f"Player {player_id}", (x1, y1-10),
-                                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-                        cv2.circle(vis, (cx, cy), 5, color, -1)
+                            color = (0, 255, 0)  # Green
+                            if result['catcher_id'] == player_id:
+                                color = (0, 255, 255)  # Yellow for catcher
 
-                    # Draw ball
-                    if result['ball_position']:
-                        bx, by = result['ball_position']
-                        cv2.circle(vis, (bx, by), 10, (0, 255, 255), 3)
+                            cv2.rectangle(vis, (x1, y1), (x2, y2), color, 2)
+                            cv2.putText(vis, f"Player {player_id}", (x1, y1-10),
+                                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                            cv2.circle(vis, (cx, cy), 5, color, -1)
 
-                    # Draw catch event
-                    if result['catcher_id'] is not None:
-                        cv2.putText(vis, f"CATCH by Player {result['catcher_id']}",
-                                   (10, vis.shape[0] - 20),
-                                   cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255), 3)
+                        # Draw ball
+                        if result['ball_position']:
+                            bx, by = result['ball_position']
+                            cv2.circle(vis, (bx, by), 10, (0, 255, 255), 3)
 
-                    writer.write(vis)
+                        # Draw catch event
+                        if result['catcher_id'] is not None:
+                            cv2.putText(vis, f"CATCH by Player {result['catcher_id']}",
+                                       (10, vis.shape[0] - 20),
+                                       cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255), 3)
 
-                if frame_idx % 30 == 0:
-                    logger.info(f"Frame {frame_idx}: {len(result['tracked_players'])} players tracked")
+                        writer.write(vis)
+
+                    if frame_idx % 30 == 0:
+                        logger.info(f"Frame {frame_idx}: {len(result['tracked_players'])} players tracked")
+                else:
+                    # Outside tracking range - write frame without annotations
+                    if writer:
+                        writer.write(frame)
 
                 frame_idx += 1
 
@@ -347,7 +356,7 @@ class SimpleOutfielderTracker:
                 writer.release()
                 logger.info(f"Saved: {output_path}")
 
-        logger.info(f"Processed {len(results)} frames")
+        logger.info(f"Processed {len(results)} frames (tracking), {frame_idx} frames total in output")
         return results
 
     def export_simple_csv(self, results: List[Dict], output_csv: str):
