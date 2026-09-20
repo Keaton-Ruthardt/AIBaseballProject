@@ -106,3 +106,7 @@ Thumbs.db
 *.exe
 *.o
 *.so
+
+# club-supplied data, never commit
+test_data.csv
+train_data.csv
